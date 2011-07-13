@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @file
+ * contentEditable fields module.
+ */
+
+function contenteditable_menu() {
+
+  $items['contenteditable/ajax'] = array(
+    'title' => t('contenteditable AJAX'),
+    'type' => MENU_CALLBACK,
+    'page callback' => 'contenteditable_ajax',
+    'access arguments' => array('access content'),
+  );
+
+  return $items;
+}
+
+function contenteditable_ajax () {
+  // Retrieve the slider value
+  $field_value = $_POST['field_value'];
+  $nid = (int)$_POST['nid'];
+  $field_name = $_POST['fieldname'];
+  $node = node_load($nid);
+  $node->{$field_name} = array('und'=>array(array('value'=>$field_value)));
+  node_save($node);
+  // Return json
+  $json_output = array();
+  $json_output['nid'] = $nid;
+  $json_output['fieldname'] = $field_name;
+  $json_output['msg'] = t('Your changes were saved.');
+  drupal_json_output($json_output);
+}
+
+/**
+ * Implementation of hook_field_formatter_info().
+ */
+function contenteditable_field_formatter_info() {
+  return array(
+    'contenteditable' => array(
+      'label' => t('contentEditable'),
+      'field types' => array('text','text_long','text_with_summary','list_text'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function contenteditable_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  drupal_add_css(drupal_get_path('module', 'contenteditable') . '/jquery.notifyBar.css', array('group' => CSS_DEFAULT, 'every_page' => TRUE));  
+  drupal_add_css(drupal_get_path('module', 'contenteditable') . '/contenteditable.css', array('group' => CSS_DEFAULT, 'every_page' => TRUE));
+  drupal_add_library('system', 'effects.highlight');
+  drupal_add_js(drupal_get_path('module', 'contenteditable') . '/jquery.notifyBar.js');
+  drupal_add_js(drupal_get_path('module', 'contenteditable') . '/contenteditable.js');
+  $element = array();
+  foreach ($items as $delta => $item) {
+    $element[$delta] = array('#markup' => '<div contentEditable="true" data-nid="' . $entity->nid . '" data-fieldname="' . $field['field_name']. '">' . $item['value'] . '</div>');
+  }
+
+  return $element;
+}
