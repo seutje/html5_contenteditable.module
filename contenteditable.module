@@ -41,18 +41,78 @@ function contenteditable_field_formatter_info() {
     'contenteditable' => array(
       'label' => t('contentEditable'),
       'field types' => array('text','text_long','text_with_summary','list_text'),
+      'settings' => array(
+        'fallback_format' => NULL,
+      ),
     ),
   );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function contenteditable_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  //This gets the view_mode where our settings are stored
+  $display = $instance['display'][$view_mode];
+  //This gets the actual settings
+  $settings = $display['settings'];  
+  $element = array();
+  
+  //fallback formatter
+  // Get the list of formatters for this field type, and remove our own.
+  $formatters = field_ui_formatter_options($field['type']);
+  unset($formatters['contenteditable']); 
+  $element['fallback_format'] = array(
+    '#type' => 'select',
+    '#title' => t('Fallback formatter'),
+    '#options' => $formatters,
+    '#default_value' => $settings['fallback_format'],
+  );
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function contenteditable_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $formatter_type = field_info_formatter_types($settings['fallback_format']);//get label of fallback formater for summary info
+  $summary = t('Fallback format: @fallback_format format', array(
+    '@fallback_format'     => $formatter_type['label'],
+  )); // we use t() for translation and placeholders to guard against attacks
+  return $summary;
+}
+
+
+/**
+ * Format a field using the fallback formatter of the contenteditable field.
+ */
+function contenteditable_fallback_formatter($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  // Set the fallback formatter.
+  $display['type'] = $display['settings']['fallback_format'];
+  $formatter_type = field_info_formatter_types($display['type']);
+  $display['module'] = $formatter_type['module'];
+
+  // Clone the entity to avoid messing with it.
+  $cloned_entity = clone $entity;
+
+  return field_view_field($entity_type, $cloned_entity, $field['field_name'], $display, $langcode);
 }
 
 /**
  * Implements hook_field_formatter_view().
  */
 function contenteditable_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  drupal_add_css(drupal_get_path('module', 'contenteditable') . '/jquery.notifyBar.css', array('group' => CSS_DEFAULT, 'every_page' => TRUE));  
+  // See if access to this form element is restricted,
+  //if so, skip widget processing and just set the value.
+  if (!entity_access('update', $entity_type, $entity) || !field_access('edit', $field, $entity_type, $entity)) {
+    // Can't edit.
+    return contenteditable_fallback_formatter($entity_type, $entity, $field, $instance, $langcode, $items, $display);
+  } 
   drupal_add_css(drupal_get_path('module', 'contenteditable') . '/contenteditable.css', array('group' => CSS_DEFAULT, 'every_page' => TRUE));
   drupal_add_library('system', 'effects.highlight');
-  drupal_add_js(drupal_get_path('module', 'contenteditable') . '/jquery.notifyBar.js');
   drupal_add_js(drupal_get_path('module', 'contenteditable') . '/contenteditable.js');
   $element = array();
   foreach ($items as $delta => $item) {
