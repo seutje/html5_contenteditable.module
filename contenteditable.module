@@ -131,31 +131,43 @@ function contenteditable_field_formatter_view($entity_type, $entity, $field, $in
 function _contenteditable_add_controls() {
   $settings = array(
     'contenteditable' => array(
-      'bold' => array(
-        'wrapper' => '<button>',
-        'event' => 'click',
-        'attributes' => array(
-          'html' => '<strong>B</strong>',
-          'data-command' => 'bold',
-          'alt' => 'bold',
+      'buttons' => array(
+        'bold' => array(
+          'wrapper' => '<button>',
+          'event' => 'click',
+          'attributes' => array(
+            'html' => '<strong>B</strong>',
+            'data-command' => 'bold',
+            'alt' => 'bold',
+          ),
         ),
-      ),
-      'italic' => array(
-        'wrapper' => '<button>',
-        'event' => 'click',
-        'attributes' => array(
-          'html' => '<i>i</i>',
-          'data-command' => 'italic',
-          'alt' => 'italic',
+        'italic' => array(
+          'wrapper' => '<button>',
+          'event' => 'click',
+          'attributes' => array(
+            'html' => '<i>i</i>',
+            'data-command' => 'italic',
+            'alt' => 'italic',
+          ),
         ),
-      ),
-      'underline' => array(
-        'wrapper' => '<button>',
-        'event' => 'click',
-        'attributes' => array(
-          'html' => '<u>u</u>',
-          'data-command' => 'underline',
-          'alt' => 'underline',
+        'underline' => array(
+          'wrapper' => '<button>',
+          'event' => 'click',
+          'attributes' => array(
+            'html' => '<u>u</u>',
+            'data-command' => 'underline',
+            'alt' => 'underline',
+          ),
+        ),
+        'link' => array(
+          'wrapper' => '<button>',
+          'event' => 'click',
+          'handler' => 'function(e) { $(this).attr("cmdValue", window.prompt("URL:")); self.commandHandler.call(this, e); }',
+          'attributes' => array(
+            'html' => '<a href="#">a</a>',
+            'data-command' => 'createLink',
+            'alt' => 'Create link',
+          ),
         ),
       ),
     ),

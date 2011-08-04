@@ -73,12 +73,12 @@ Drupal.behaviors.contenteditable = {
     $success.delay(1800).slideUp('slow', function() { $(this).remove(); });
   },
   constructControls: function() {
-    if (!Drupal.settings || !Drupal.settings.contenteditable) {
+    if (!Drupal.settings || !Drupal.settings.contenteditable || !Drupal.settings.contenteditable.buttons) {
       throw new Error('Control settings not found.');
     }
     // Go over the settings object, construct the controls and return them as 1 jQuery collection.
     var $buttons = $();
-    $.each(Drupal.settings.contenteditable, function(i, el) {
+    $.each(Drupal.settings.contenteditable.buttons, function(i, el) {
       var $el = $(el.wrapper, el.attributes).bind(el.event, el.handler ? eval('(' + el.handler + ')') : self.commandHandler);
       $buttons = $buttons.add($el);
     });
