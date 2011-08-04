@@ -114,6 +114,7 @@ function contenteditable_field_formatter_view($entity_type, $entity, $field, $in
   drupal_add_css(drupal_get_path('module', 'contenteditable') . '/contenteditable.css', array('group' => CSS_DEFAULT, 'every_page' => TRUE));
   drupal_add_library('system', 'effects.highlight');
   drupal_add_js(drupal_get_path('module', 'contenteditable') . '/contenteditable.js');
+  _contenteditable_add_controls();
   $element = array();
   foreach ($items as $delta => $item) {
     $element[$delta] = array('#markup' => '<div contentEditable="true" data-nid="' . $entity->nid . '" data-fieldname="' . $field['field_name']. '">' . $item['value'] . '</div>');
@@ -121,3 +122,44 @@ function contenteditable_field_formatter_view($entity_type, $entity, $field, $in
 
   return $element;
 }
+
+/**
+ * Helper function to add the controls to Drupal.settings
+ *
+ * @TODO: Consider making this a hook.
+ */
+function _contenteditable_add_controls() {
+  $settings = array(
+    'contenteditable' => array(
+      'bold' => array(
+        'wrapper' => '<button>',
+        'event' => 'click',
+        'attributes' => array(
+          'html' => '<strong>B</strong>',
+          'data-command' => 'bold',
+          'alt' => 'bold',
+        ),
+      ),
+      'italic' => array(
+        'wrapper' => '<button>',
+        'event' => 'click',
+        'attributes' => array(
+          'html' => '<i>i</i>',
+          'data-command' => 'italic',
+          'alt' => 'italic',
+        ),
+      ),
+      'underline' => array(
+        'wrapper' => '<button>',
+        'event' => 'click',
+        'attributes' => array(
+          'html' => '<u>u</u>',
+          'data-command' => 'underline',
+          'alt' => 'underline',
+        ),
+      ),
+    ),
+  );
+  drupal_add_js($settings, 'setting');
+}
+
