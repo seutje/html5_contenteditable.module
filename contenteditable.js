@@ -34,7 +34,7 @@ Drupal.behaviors.contenteditable = {
   commandHandler: function(e) {
     // Executes commands attached to the controls.
     var $this = $(this),
-        cmd = $this.data('command')
+        cmd = $this.data('command'),
         cmdValue = $this.attr('cmdValue') || null,
         returnValue = document.execCommand(cmd, false, cmdValue);
     if (returnValue) {
