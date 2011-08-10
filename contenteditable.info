@@ -1,6 +1,7 @@
 name = HTML5 contentEditable
-description = "Allows you to make some fields editable from the display via the HTML5 contentEditable attribute."
+description = "Uses a custom formatter to allow you to make some fields editable from the display via the HTML5 contentEditable attribute."
 package = Fields
 version = "7.x-1.x-dev"
+dependencies[] = entity
 
 core = 7.x

@@ -15,18 +15,21 @@ Drupal.behaviors.contenteditable = {
   },
   init: function() {
     // Create controls, store reference and bind handlers.
-    self.controls = $('<div id="contenteditableButtons" class="contenteditable_buttons"><button data-command="bold" alt="bold"><b>B</b></button> <button data-command="italic" alt="italic"><i>I</i></button> <button data-command="underline" alt="underline"><u>U</u></button> <button id="contenteditableSave">Save</button></div>').appendTo('body');
-    self.controls.find('#contenteditableSave').bind('click', self.submitHandler);
-    self.controls.find('[data-command]').bind('click', self.commandHandler);
+    var $controls = self.constructControls().add('<button>', { 'id': 'contenteditableSave', 'text': Drupal.t('Save'), click: self.submitHandler, 'data-tooltip': 'save changes'});
+    self.controls = $('<div id="contenteditableButtons" class="contenteditable_buttons"></div>').append($controls).appendTo('body');
     self.initialized = true;
+    self.currentField = null;
   },
   focusin: function(e) {
-    // Move the controls to right before the element we're editing.
-    self.active = $(this);
-    var $clone = self.controls.clone(true);
-    self.controls.remove();
-    self.controls = $clone;
-    self.controls.hide().insertBefore(self.active).fadeIn('slow');
+    // Move the controls to right before the element we're editing, but only when focusing in on a new field, otherwise do nothing.
+    if(self.currentField != $(this).data('fieldname')){
+      self.active = $(this);
+      self.currentField = self.active.data('fieldname');
+      var $clone = self.controls.clone(true);
+      self.controls.remove();
+      self.controls = $clone;
+      self.controls.hide().insertBefore(self.active).fadeIn('slow');
+    }
   },
   focusout: function(e) {
     // TODO: handle removing the controls in a sane way.
@@ -71,6 +74,18 @@ Drupal.behaviors.contenteditable = {
         $success = $('<div id="contenteditableSuccess" class="messages status">' + data['msg'] + '</div>').insertBefore($el);
     $el.effect('highlight', {}, 3000);
     $success.delay(1800).slideUp('slow', function() { $(this).remove(); });
+  },
+  constructControls: function() {
+    if (!Drupal.settings || !Drupal.settings.contenteditable || !Drupal.settings.contenteditable.buttons) {
+      throw new Error('Control settings not found.');
+    }
+    // Go over the settings object, construct the controls and return them as 1 jQuery collection.
+    var $buttons = $();
+    $.each(Drupal.settings.contenteditable.buttons, function(i, el) {
+      var $el = $(el.wrapper, el.attributes).bind(el.event, el.handler ? eval('(' + el.handler + ')') : self.commandHandler);
+      $buttons = $buttons.add($el);
+    });
+    return $buttons;
   },
   hideControls: function() {
     // Move the controls back to the end of the body element.
