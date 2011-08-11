@@ -15,18 +15,21 @@ Drupal.behaviors.contenteditable = {
   },
   init: function() {
     // Create controls, store reference and bind handlers.
-    var $controls = self.constructControls().add('<button>', { 'id': 'contenteditableSave', 'text': Drupal.t('Save'), click: self.submitHandler });
+    var $controls = self.constructControls().add('<button>', { 'id': 'contenteditableSave', 'text': Drupal.t('Save'), click: self.submitHandler, 'data-tooltip': 'save changes'});
     self.controls = $('<div id="contenteditableButtons" class="contenteditable_buttons"></div>').append($controls).appendTo('body');
     self.initialized = true;
+    self.currentField = null;
   },
   focusin: function(e) {
-    // Move the controls to right before the element we're editing.
-    self.active = $(this);
-    var $clone = self.controls.clone(true).insertBefore(self.active);
-    $clone.slideDown('slow', function() {
+    // Move the controls to right before the element we're editing, but only when focusing in on a new field, otherwise do nothing.
+    if(self.currentField != $(this).data('fieldname')){
+      self.active = $(this);
+      self.currentField = self.active.data('fieldname');
+      var $clone = self.controls.clone(true);
       self.controls.remove();
       self.controls = $clone;
-    });
+      self.controls.hide().insertBefore(self.active).fadeIn('slow');
+    }
   },
   focusout: function(e) {
     // TODO: handle removing the controls in a sane way.

@@ -10,7 +10,6 @@ div.contenteditable_buttons{
   -webkit-border-radius: 11px;
   -moz-background-clip: padding;
   -webkit-background-clip: padding;
-  background: -moz-linear-gradient(top center, white 0%, #DDD 100%);
   border-radius: 11px;
   background: #DDD url(images/button.png) repeat-x;
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0, white), color-stop(1, #DDD));
@@ -35,4 +34,22 @@ button.contenteditable_button {
 /*buttons for format plugin*/
 #contenteditableSave{
   float: right;
+}
+
+/*override line height*/
+#contenteditableButtons a:link, a:visited{
+  line-height:0;
+}
+
+#contenteditableButtons button:hover:after { 
+  content: attr(data-tooltip);  
+  position: absolute;
+  white-space: nowrap;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FFFFCC), color-stop(0.9, #FFFFCC));
+  background: -moz-linear-gradient(top center, #FFFFCC 0%, #FFFFCC 90%);
+  padding: 3px 7px;
+  color: #777;
+  border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px;
+  margin-left: -30px;
+  margin-top: -30px;
 }

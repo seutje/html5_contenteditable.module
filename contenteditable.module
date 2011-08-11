@@ -129,49 +129,43 @@ function contenteditable_field_formatter_view($entity_type, $entity, $field, $in
  * @TODO: Consider making this a hook.
  */
 function _contenteditable_add_controls() {
-  $settings = array(
-    'contenteditable' => array(
-      'buttons' => array(
-        'bold' => array(
-          'wrapper' => '<button>',
-          'event' => 'click',
-          'attributes' => array(
-            'html' => '<strong>B</strong>',
-            'data-command' => 'bold',
-            'alt' => 'bold',
-          ),
-        ),
-        'italic' => array(
-          'wrapper' => '<button>',
-          'event' => 'click',
-          'attributes' => array(
-            'html' => '<i>i</i>',
-            'data-command' => 'italic',
-            'alt' => 'italic',
-          ),
-        ),
-        'underline' => array(
-          'wrapper' => '<button>',
-          'event' => 'click',
-          'attributes' => array(
-            'html' => '<u>u</u>',
-            'data-command' => 'underline',
-            'alt' => 'underline',
-          ),
-        ),
-        'link' => array(
-          'wrapper' => '<button>',
-          'event' => 'click',
-          'handler' => 'function(e) { $(this).attr("cmdValue", window.prompt("URL:")); self.commandHandler.call(this, e); }',
-          'attributes' => array(
-            'html' => '<a href="#">a</a>',
-            'data-command' => 'createLink',
-            'alt' => 'Create link',
-          ),
+  $buttons = array(
+      'bold' => array(
+        'wrapper' => '<button>',
+        'event' => 'click',
+        'attributes' => array(
+          'html' => '<strong>B</strong>',
+          'data-command' => 'bold',
+          'alt' => 'bold',
+          'data-tooltip' => t('bold'),
         ),
       ),
-    ),
+      'italic' => array(
+        'wrapper' => '<button>',
+        'event' => 'click',
+        'attributes' => array(
+          'html' => '<i>i</i>',
+          'data-command' => 'italic',
+          'alt' => 'italic',
+          'data-tooltip' => t('italic'),
+        ),
+      ),
+      'underline' => array(
+        'wrapper' => '<button>',
+        'event' => 'click',
+        'attributes' => array(
+          'html' => '<u>u</u>',
+          'data-command' => 'underline',
+          'alt' => 'underline',
+          'data-tooltip' => t('underline selected text'),
+        ),
+      ),
   );
+  //hook to add controls
+  $additional_controls = module_invoke_all('contenteditable_add_controls');
+  if (is_array($additional_controls)) {
+    $buttons = array_merge($buttons, $additional_controls);
+  }
+  $settings['contenteditable']['buttons'] = $buttons;
   drupal_add_js($settings, 'setting');
 }
-
