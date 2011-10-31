@@ -58,6 +58,11 @@ function contenteditable_field_formatter_settings_form($field, $instance, $view_
   $settings = $display['settings'];  
   $element = array();
   
+  //had an issue when using this formatter in a View, results in a Fatal error: undefined function field_ui_formatter_options() i
+  if (!function_exists(field_ui_formatter_options)) {
+    module_load_include('inc', 'field_ui', 'field_ui.admin');
+  }
+  
   //fallback formatter
   // Get the list of formatters for this field type, and remove our own.
   $formatters = field_ui_formatter_options($field['type']);
@@ -66,6 +71,7 @@ function contenteditable_field_formatter_settings_form($field, $instance, $view_
     '#type' => 'select',
     '#title' => t('Fallback formatter'),
     '#options' => $formatters,
+    '#description'    => t('The format to be used when not in edit mode.'),  //helper text
     '#default_value' => $settings['fallback_format'],
   );
 
@@ -79,7 +85,7 @@ function contenteditable_field_formatter_settings_summary($field, $instance, $vi
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
   $formatter_type = field_info_formatter_types($settings['fallback_format']);//get label of fallback formater for summary info
-  $summary = t('Fallback format: @fallback_format format', array(
+  $summary = t('Fallback format: @fallback_format format (Select format to be used when not in edit mode.)', array(
     '@fallback_format'     => $formatter_type['label'],
   )); // we use t() for translation and placeholders to guard against attacks
   return $summary;
